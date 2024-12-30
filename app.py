@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 app = Flask(__name__)
 
-model_path = "C:/Users/Ben Yoon/Desktop/PythonProjects/Vision/HandPose/runs/pose/train/weights/best.pt"
+model_path = "runs/pose/train/weights/best.pt"
 model = YOLO(model_path)
 password_gesture_file = 'persistence/password_gesture.npy'
 
@@ -18,7 +18,7 @@ def extract_hand_keypoints(results, frame_shape):
     for result in results:
         if result.keypoints and len(result.boxes) > 0:
             # Extract bounding box
-            bbox = result.boxes.xyxy[0].cpu().numpy()  # x1, y1, x2, y2
+            bbox = result.boxes.xyxy[0].cpu().numpy()
             x1, y1, x2, y2 = bbox
             width, height = x2 - x1, y2 - y1
 
@@ -33,11 +33,9 @@ def extract_hand_keypoints(results, frame_shape):
                 normalized_keypoints.extend([norm_x, norm_y])
 
             keypoints.append(np.array(normalized_keypoints))
-            break  # Only process the first detected hand
+            break
 
     return np.mean(keypoints, axis=0) if keypoints else np.array([])
-
-
 
 
 def save_password_gesture(gesture):
@@ -68,8 +66,6 @@ def verify_password_gesture(current_gesture):
     else:
         print("❌ Password Mismatch! Try again.")
         return False
-
-
 
 
 @app.route('/')
@@ -118,7 +114,6 @@ def verify_gesture():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'status': 'Server error', 'error': str(e)}), 500
-
 
 
 if __name__ == '__main__':

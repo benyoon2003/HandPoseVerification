@@ -5,19 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hand Gesture Login</title>
     <style>
-        /* Style for the webcam video container */
         #video-container {
             position: relative;
             display: inline-block;
         }
-
-        /* Style the canvas for visualizing gestures */
         #canvas {
             position: absolute;
             top: 0;
             left: 0;
             z-index: 2;
-            pointer-events: none; /* Allow interaction with video behind canvas */
+            pointer-events: none;
         }
 
         /* Style for messages (overlay over video) */
@@ -40,7 +37,7 @@
 
         /* Style for loading indicator */
         #loading {
-            color: blue; /* Blue for loading message */
+            color: white;
         }
 
         /* Green for success (Access Granted) */
@@ -60,14 +57,8 @@
     <!-- Container for the webcam video feed and overlay messages -->
     <div id="video-container">
         <video id="webcam" autoplay playsinline></video>
-
-        <!-- Canvas for drawing normalized keypoints -->
         <canvas id="canvas"></canvas>
-
-        <!-- Loading Indicator -->
         <div id="loading">Loading...</div>
-
-        <!-- Message for gesture status (verification or gesture saved) -->
         <div id="messageDiv"></div>
     </div>
 
@@ -86,7 +77,6 @@
         navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
                 webcam.srcObject = stream;
-                // Adjust canvas size to match webcam stream
                 webcam.onloadedmetadata = () => {
                     canvas.width = webcam.videoWidth;
                     canvas.height = webcam.videoHeight;
@@ -119,7 +109,7 @@
                         throw new Error(`Server responded with status ${response.status}`);
                     }
 
-                    const result = await response.json(); // Ensure server returns JSON
+                    const result = await response.json();
                     console.log('Server Response:', result);
 
                     // Show message based on the server response
@@ -129,44 +119,19 @@
                         showMessage('Unknown error occurred.', false);
                     }
 
-                    // If keypoints are available, draw them on the canvas
-                    if (result.keypoints) {
-                        drawKeypointsOnCanvas(result.keypoints);
-                    }
                 } catch (error) {
                     console.error('Error sending gesture:', error);
                     showMessage('⚠️ Error: ' + error.message, false);
                 } finally {
-                    // Hide the loading indicator once the request is complete
                     showLoadingIndicator(false);
                 }
             }, 'image/jpeg');
         }
 
-        function drawKeypointsOnCanvas(keypoints) {
-            // Clear previous keypoints
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            context.fillStyle = 'red';
-            for (let i = 0; i < keypoints.length; i += 2) {
-                const norm_x = keypoints[i];
-                const norm_y = keypoints[i + 1];
-
-                // Normalize to canvas dimensions (using video width/height)
-                const x = norm_x * canvas.width;
-                const y = norm_y * canvas.height;
-
-                // Draw a small circle at each keypoint
-                context.beginPath();
-                context.arc(x, y, 5, 0, 2 * Math.PI);
-                context.fill();
-            }
-        }
-
         function showLoadingIndicator(show) {
             if (show) {
                 loadingIndicator.style.display = 'block';
-                messageDiv.style.display = 'none'; // Hide message during loading
+                messageDiv.style.display = 'none';
             } else {
                 loadingIndicator.style.display = 'none';
             }
@@ -175,7 +140,7 @@
         function showMessage(message, isError) {
             messageDiv.textContent = message;
             messageDiv.style.display = 'block';
-            messageDiv.className = isError ? 'error' : 'success'; // Add error or success class
+            messageDiv.className = isError ? 'error' : 'success';
         }
     </script>
 </body>
